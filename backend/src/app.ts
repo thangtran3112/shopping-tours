@@ -1,12 +1,26 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Express, NextFunction, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { readFileSync, writeFile } from 'fs';
 
 dotenv.config();
 
 const app: Express = express();
-//express middleware for inspecting requests. Body is added to request object
+
+interface ApiRequest extends Request {
+  requestTime?: string;
+}
+
+//chaining your requests through middleware, before sending the response
 app.use(express.json());
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log('Hello from the middleware 😂');
+  next();
+});
+app.use((req: ApiRequest, res: Response, next: NextFunction) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
+
 const port = process.env.PORT || 3000;
 
 const tours = JSON.parse(
@@ -88,23 +102,17 @@ const postTour = (req: Request, res: Response) => {
   );
 };
 
-const getAllTours = (req: Request, res: Response) => {
+const getAllTours = (req: ApiRequest, res: Response) => {
+  console.log(req.requestTime);
   res.status(200).json({
     status: 'success',
+    requestedAt: req.requestTime,
     results: tours.length,
     data: {
       tours,
     },
   });
 };
-
-//localhost:3000/api/v1/tours/5/2/3
-//add ? to make a Path parameter optional '/api/v1/tours/:id/:x/:y?'
-// app.get('/api/v1/tours/:id', getTour);
-// app.patch('/api/v1/tours/:id', patchTour);
-// app.delete('/api/v1/tours/:id', deleteTour);
-// app.post('/api/v1/tours', postTour);
-// app.get('/api/v1/tours', getTour);
 
 app.route('/api/v1/tours').get(getAllTours).post(postTour);
 app.route('/api/v1/tours/:id').get(getTour).patch(patchTour).delete(deleteTour);
