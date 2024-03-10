@@ -32,7 +32,7 @@ app.get('/api/v1/tours/:id', (req: Request, res: Response): any => {
 
   if (!tour) {
     return res.status(404).json({
-      status: 'Fail',
+      status: 'fail',
       reason: `Unable to find tour with id of ${id}`,
     });
   }
@@ -41,6 +41,24 @@ app.get('/api/v1/tours/:id', (req: Request, res: Response): any => {
     status: 'success',
     data: {
       tour,
+    },
+  });
+});
+
+app.patch('/api/v1/tours/:id', (req: Request, res: Response): any => {
+  const id = parseInt(req.params.id); //convert to int
+  if (id > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      data: {
+        tour: 'Invalid Id',
+      },
+    });
+  }
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour: '<Updated tour here...>',
     },
   });
 });
