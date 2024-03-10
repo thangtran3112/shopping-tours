@@ -67,3 +67,8 @@ npm i -D nodemon ts-node
 ## [Eslint and Prettier setup](https://mobisoftinfotech.com/resources/blog/set-up-node-and-express-js-project-from-scratch-with-typescript-eslint-and-prettier/)
 
 - Optional: `npx eslint --init` or directly created .eslintrc.json
+
+## Set up libraries
+
+- Install `morgan`: `npm i morgan @types/morgan`
+- List of officially [supported middlewares by Express](https://github.com/senchalabs/connect#middleware)
