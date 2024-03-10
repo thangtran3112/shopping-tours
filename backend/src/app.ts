@@ -24,7 +24,7 @@ app.use((req: ApiRequest, res: Response, next: NextFunction) => {
   next();
 });
 
-// 2) ROUTES
+// 2) FUNCTIONS
 const tours = JSON.parse(
   readFileSync(`${__dirname}/dev-data/data/tours-simple.json`, 'utf8'),
 ) as any[];
@@ -49,7 +49,7 @@ const getTour = (req: Request, res: Response): any => {
   });
 };
 
-const patchTour = (req: Request, res: Response): any => {
+const updateTour = (req: Request, res: Response): any => {
   const id = parseInt(req.params.id); //convert to int
   if (id > tours.length) {
     return res.status(404).json({
@@ -116,8 +116,49 @@ const getAllTours = (req: ApiRequest, res: Response) => {
   });
 };
 
-app.route('/api/v1/tours').get(getAllTours).post(postTour);
-app.route('/api/v1/tours/:id').get(getTour).patch(patchTour).delete(deleteTour);
+const getAllUsers = (req: Request, res: Response) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined!',
+  });
+};
+const createUser = (req: Request, res: Response) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined!',
+  });
+};
+const getUser = (req: Request, res: Response) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined!',
+  });
+};
+const updateUser = (req: Request, res: Response) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined!',
+  });
+};
+const deleteUser = (req: Request, res: Response) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined!',
+  });
+};
+
+// 3) ROUTES
+const tourRouter = express.Router();
+const userRouter = express.Router();
+
+tourRouter.route('/').get(getAllTours).post(postTour);
+tourRouter.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
+
+userRouter.route('/').get(getAllUsers).post(createUser);
+userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
 
 // 3) START SERVER
 const port = process.env.PORT || 3000;
