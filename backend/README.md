@@ -44,7 +44,7 @@ npm i -D nodemon ts-node
 
 ## Start dev server or build the project:
 
-- `npm run dev`
+- `npm start`
 - `npm run build` to build your typescript Express codes into Javacript under /dist
 
 ## Testing Express in Javascript mode:

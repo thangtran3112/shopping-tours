@@ -13,10 +13,6 @@ const app: Express = express();
 //chaining your requests through middleware, before sending the response
 app.use(morgan('dev'));
 app.use(express.json());
-app.use((req: Request, res: Response, next: NextFunction) => {
-  console.log('Hello from the middleware 😂');
-  next();
-});
 app.use((req: ApiRequest, res: Response, next: NextFunction) => {
   req.requestTime = new Date().toISOString();
   next();
