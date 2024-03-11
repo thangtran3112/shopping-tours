@@ -2,12 +2,13 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "Backend with Express",
-  "main": "src/app.js",
+  "main": "src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx tsc",
-    "start": "node dist/app.js",
-    "dev": "nodemon src/app.ts",
+    "build": "npx tsc && cp -r src/dev-data/ dist/dev-data/",
+    "postbuild": "cp package*.json dist && cd dist && npm ci --production",
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts",
     "lint": "eslint \"**/*.ts\" --fix",
     "format": "prettier --write \"**/*.ts\"",
     "clean": "rm -rf dist"
