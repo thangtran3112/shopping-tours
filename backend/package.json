@@ -8,8 +8,7 @@
     "copy": "cp -r src/dev-data/data dist/dev-data",
     "build": "npx tsc && npm run copy",
     "postbuild": "cp package*.json dist && cd dist && npm ci --production",
-    "start": "node dist/server.js",
-    "dev": "nodemon src/server.ts",
+    "start": "nodemon",
     "lint": "eslint \"**/*.ts\" --fix",
     "format": "prettier --write \"**/*.ts\"",
     "clean": "rm -rf dist"
