@@ -1,10 +1,10 @@
 import { ApiRequest } from '../app';
 import { Request, Response } from 'express';
 import { readFileSync, writeFile } from 'fs';
+import { join } from 'path';
+const tourPath = join(__dirname, '../dev-data/data/tours-simple.json');
 
-export const tours = JSON.parse(
-  readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`, 'utf8'),
-) as any[];
+export const tours = JSON.parse(readFileSync(tourPath, 'utf8')) as any[];
 
 export const getTour = (req: Request, res: Response): any => {
   console.log(req.params);
