@@ -2,13 +2,14 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "Backend with Express",
-  "main": "src/server.js",
+  "main": "src/server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "copy": "cp -r src/dev-data/data dist/dev-data",
+    "copy": "cp -r src/dev-data/data dist/dev-data && cp config.env",
     "build": "npx tsc && npm run copy",
     "postbuild": "cp package*.json dist && cd dist && npm ci --production",
-    "start": "nodemon",
+    "start": "NODE_ENV=development nodemon",
+    "start:prod": "NODE_ENV=production nodemon",
     "lint": "eslint \"**/*.ts\" --fix",
     "format": "prettier --write \"**/*.ts\"",
     "clean": "rm -rf dist"
