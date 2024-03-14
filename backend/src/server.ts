@@ -1,10 +1,22 @@
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import { join } from 'path';
 
 //Must load the config before importing app, so app will have process.env ready
 dotenv.config({ path: join(__dirname, '../config.env') });
-
 import app from './app';
+
+// 2) CONNECT TO DB
+// If using special character in password, must encode the character
+// https://stackoverflow.com/questions/7486623/mongodb-password-with-in-it
+//const DB_LOCAL = process.env.DB_LOCAL;
+mongoose
+  .connect(process.env.DB_URL!, {
+    autoIndex: true,
+    user: process.env.DB_USERNAME!,
+    pass: process.env.DB_PASSWORD!,
+  })
+  .then(() => console.log('DB connection successful!'));
 
 // 3) START SERVER
 
