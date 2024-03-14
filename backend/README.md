@@ -72,3 +72,9 @@ npm i -D nodemon ts-node
 
 - Install `morgan`: `npm i morgan @types/morgan`
 - List of officially [supported middlewares by Express](https://github.com/senchalabs/connect#middleware)
+
+## Running API as AWS Lambda or Azura Function
+
+- [Install `serverless` framework](https://www.npmjs.com/package/@codegenie/serverless-express)
+- Checkout for more examples of serverless on all programming languages. [Link](https://github.com/serverless/examples)
+- `npm install @codegenie/serverless-express`
