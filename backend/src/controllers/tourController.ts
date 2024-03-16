@@ -1,6 +1,7 @@
 import { ITour, Tour } from '../models/tourModel';
 import { ApiRequest } from '../app';
 import { Request, Response } from 'express';
+import { ExcludedFields } from '../constants/params';
 
 export const getTour = async (req: Request, res: Response) => {
   try {
@@ -78,8 +79,26 @@ export const createTour = async (req: Request, res: Response) => {
 
 export const getAllTours = async (req: ApiRequest, res: Response) => {
   try {
-    const tours = (await Tour.find({})) as ITour[];
-    // console.log(req.requestTime);
+    // console.log(req.query);
+
+    //later on we will have some parameters, which does not belong to ITour
+    //Example: localhost:3000/api/v1/tours?page=5&difficulty=easy
+    //We will have to exclude page from database query
+    const queryObj = { ...req.query };
+    ExcludedFields.forEach((excludedParam) => delete queryObj[excludedParam]);
+
+    //Option1: Using MongoDB query filter
+    //localhost:3000/api/v1/tours?duration=5&difficulty=easy
+    const query = Tour.find(queryObj);
+    const tours = (await query) as ITour[];
+
+    //Option2: Using mongoose query filter
+    // const query = Tour.find()
+    //   .where('duration')
+    //   .equals(req.query.duration)
+    //   .where('difficulty')
+    //   .equals(req.query.difficulty);
+
     res.status(200).json({
       status: 'success',
       results: tours.length,
