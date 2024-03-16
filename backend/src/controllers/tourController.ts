@@ -68,6 +68,7 @@ export const createTour = async (req: Request, res: Response) => {
       },
     });
   } catch (err) {
+    console.log(err);
     res.status(400).json({
       status: 'fail',
       message: 'Invalid data sent!',
@@ -78,7 +79,7 @@ export const createTour = async (req: Request, res: Response) => {
 export const getAllTours = async (req: ApiRequest, res: Response) => {
   try {
     const tours = (await Tour.find({})) as ITour[];
-    console.log(req.requestTime);
+    // console.log(req.requestTime);
     res.status(200).json({
       status: 'success',
       results: tours.length,
