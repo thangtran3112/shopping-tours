@@ -85,7 +85,7 @@ const tourSchema = new mongoose.Schema<ITour>({
   createdAt: {
     type: Date,
     default: Date.now(),
-    // select: false,
+    select: false, //exclude this field from Database response projection
   },
   //if input is a string array, it will be converted to Date array
   startDates: [Date],
