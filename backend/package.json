@@ -12,7 +12,9 @@
     "start:prod": "NODE_ENV=production nodemon",
     "lint": "eslint \"**/*.ts\" --fix",
     "format": "prettier --write \"**/*.ts\"",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "delete": "npx ts-node src/dev-data/data/import-dev-data.ts --delete",
+    "import": "npx ts-node src/dev-data/data/import-dev-data.ts --import"
   },
   "author": "Thang Tran",
   "license": "ISC",
