@@ -91,16 +91,20 @@ export const getAllTours = async (req: ApiRequest, res: Response) => {
     //Example: localhost:3000/api/v1/tours?difficulty=easy&duration[gte]=5&page=1&price[lt]=1500
     const queryObj = JSON.parse(queryStr);
     ExcludedFields.forEach((excludedParam) => delete queryObj[excludedParam]);
+    let query = Tour.find(queryObj);
 
-    const query = Tour.find(queryObj);
+    // 3.Sorting
+    // localhost:3000/api/v1/tours?sort=price //ascending
+    // localhost:3000/api/v1/tours?sort=price,ratingsAverage //ascending
+    // localhost:3000/api/v1/tours?sort=-price //descending
+    if (req.query.sort) {
+      const sortBy = (req.query.sort as string).split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
+
     const tours = (await query) as ITour[];
-
-    //Option2: Using mongoose query filter
-    // const query = Tour.find()
-    //   .where('duration')
-    //   .equals(req.query.duration)
-    //   .where('difficulty')
-    //   .equals(req.query.difficulty);
 
     res.status(200).json({
       status: 'success',
