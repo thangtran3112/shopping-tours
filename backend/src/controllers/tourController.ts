@@ -93,7 +93,7 @@ export const getAllTours = async (req: ApiRequest, res: Response) => {
     ExcludedFields.forEach((excludedParam) => delete queryObj[excludedParam]);
     let query = Tour.find(queryObj);
 
-    // 3.Sorting
+    // 2.Sorting
     // localhost:3000/api/v1/tours?sort=price //ascending
     // localhost:3000/api/v1/tours?sort=price,ratingsAverage //ascending
     // localhost:3000/api/v1/tours?sort=-price //descending
@@ -101,7 +101,18 @@ export const getAllTours = async (req: ApiRequest, res: Response) => {
       const sortBy = (req.query.sort as string).split(',').join(' ');
       query = query.sort(sortBy);
     } else {
+      //default sorting
       query = query.sort('-createdAt');
+    }
+
+    // 3. Fields Projection
+    // localhost:3000/api/v1/tours?fields=name,duration,difficulty
+    if (req.query.fields) {
+      const fields = (req.query.fields as string).split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      //default projection, since `__v` is in Mongo DB Document by default. We will exclude __v by default
+      query = query.select('-__v');
     }
 
     const tours = (await query) as ITour[];
