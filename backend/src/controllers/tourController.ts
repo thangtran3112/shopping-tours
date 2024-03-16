@@ -80,15 +80,18 @@ export const createTour = async (req: Request, res: Response) => {
 export const getAllTours = async (req: ApiRequest, res: Response) => {
   try {
     // console.log(req.query);
+    let queryStr = JSON.stringify(req.query);
+
+    //replace gte into $gte for Mongo usage
+    //\b is a word boundary or matching the exact word, /g is repetitive
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    console.log(`Adjusted query: ${queryStr}`);
 
     //later on we will have some parameters, which does not belong to ITour
-    //Example: localhost:3000/api/v1/tours?page=5&difficulty=easy
-    //We will have to exclude page from database query
-    const queryObj = { ...req.query };
+    //Example: localhost:3000/api/v1/tours?difficulty=easy&duration[gte]=5&page=1&price[lt]=1500
+    const queryObj = JSON.parse(queryStr);
     ExcludedFields.forEach((excludedParam) => delete queryObj[excludedParam]);
 
-    //Option1: Using MongoDB query filter
-    //localhost:3000/api/v1/tours?duration=5&difficulty=easy
     const query = Tour.find(queryObj);
     const tours = (await query) as ITour[];
 
