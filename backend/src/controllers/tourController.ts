@@ -82,10 +82,12 @@ export const getAllTours = async (req: ApiRequest, res: Response) => {
     // console.log(req.query);
     let queryStr = JSON.stringify(req.query);
 
+    // 1. Filtering
+
     //replace gte into $gte for Mongo usage
     //\b is a word boundary or matching the exact word, /g is repetitive
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    console.log(`Adjusted query: ${queryStr}`);
+    //console.log(`Adjusted query: ${queryStr}`);
 
     //later on we will have some parameters, which does not belong to ITour
     //Example: localhost:3000/api/v1/tours?difficulty=easy&duration[gte]=5&page=1&price[lt]=1500
@@ -102,7 +104,7 @@ export const getAllTours = async (req: ApiRequest, res: Response) => {
       query = query.sort(sortBy);
     } else {
       //default sorting
-      query = query.sort('-createdAt');
+      query = query.sort('-createdAt name');
     }
 
     // 3. Fields Projection
@@ -115,6 +117,22 @@ export const getAllTours = async (req: ApiRequest, res: Response) => {
       query = query.select('-__v');
     }
 
+    // 4. Pagination
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 100;
+    const skip = (page - 1) * limit;
+    console.log({ page, limit, skip });
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if (skip >= numTours) {
+        throw new Error('This page does not exist');
+      }
+    }
+
+    // 5. Executing query
+    //query.skip().limit().select().sort().exec()
     const tours = (await query) as ITour[];
 
     res.status(200).json({
