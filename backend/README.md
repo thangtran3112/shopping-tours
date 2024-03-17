@@ -14,6 +14,7 @@
 
 - Install `morgan`: `npm i morgan @types/morgan`
 - List of officially [supported middlewares by Express](https://github.com/senchalabs/connect#middleware)
+- `npm i validator` `npm i -D @types/validator`
 
 ## Typescript Project Setup
 
