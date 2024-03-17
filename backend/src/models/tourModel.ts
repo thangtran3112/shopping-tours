@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Query } from 'mongoose';
 import slugify from 'slugify';
 
 export enum Difficulty {
@@ -23,6 +23,8 @@ export interface ITour {
   createdAt?: Date | string; //Mongoose will convert it to Date
   startDates?: Date[] | string[]; //Mongoose will convert it to Date
   slug?: string;
+  secretTour?: boolean;
+  // start?: Date; //not to be peristed
 }
 
 const tourSchema = new mongoose.Schema<ITour>(
@@ -95,6 +97,10 @@ const tourSchema = new mongoose.Schema<ITour>(
       type: String,
       trim: true,
     },
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     //each time the schema is converted to JSON, virtual properties will be added
@@ -123,6 +129,21 @@ tourSchema.pre('save', function (next) {
 //execute after all other mongoose middlewares finish
 tourSchema.post('save', function (doc, next) {
   console.log(doc);
+  next();
+});
+
+//query middleware before the query is executed, with regex matching
+// for find(), findOne(), findOneAndUpdate(), findOneAndDelete()
+tourSchema.pre(/^find/, function (this: any, next) {
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
+  next();
+});
+
+//After the query is executed
+tourSchema.post(/^find/, function (this: any, docs, next) {
+  console.log(`Query took ${Date.now() - this.start} milliseconds`);
+  // console.log(docs);
   next();
 });
 
