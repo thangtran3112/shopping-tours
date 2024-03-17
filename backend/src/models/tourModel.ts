@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import slugify from 'slugify';
 
 export enum Difficulty {
   easy = 'easy',
@@ -16,11 +17,12 @@ export interface ITour {
   ratingQuantity?: number;
   discount?: number;
   summary: string;
-  description: string;
+  description?: string;
   imageCover: string;
   images?: string[];
   createdAt?: Date | string; //Mongoose will convert it to Date
   startDates?: Date[] | string[]; //Mongoose will convert it to Date
+  slug?: string;
 }
 
 const tourSchema = new mongoose.Schema<ITour>(
@@ -75,7 +77,6 @@ const tourSchema = new mongoose.Schema<ITour>(
     description: {
       type: String,
       trim: true,
-      required: [true, 'A tour must have a description'],
     },
     imageCover: {
       type: String,
@@ -90,6 +91,10 @@ const tourSchema = new mongoose.Schema<ITour>(
     },
     //if input is a string array, it will be converted to Date array
     startDates: [Date],
+    slug: {
+      type: String,
+      trim: true,
+    },
   },
   {
     //each time the schema is converted to JSON, virtual properties will be added
@@ -101,6 +106,24 @@ const tourSchema = new mongoose.Schema<ITour>(
 //virtual property, which is available on the document but not in the database
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
+});
+
+//mongoose middleware function
+//run before .save() and .create(), but not .findOne() or insertMany()
+tourSchema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+tourSchema.pre('save', function (next) {
+  console.log('Will save document...');
+  next();
+});
+
+//execute after all other mongoose middlewares finish
+tourSchema.post('save', function (doc, next) {
+  console.log(doc);
+  next();
 });
 
 //model is uppercase
