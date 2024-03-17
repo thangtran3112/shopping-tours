@@ -143,7 +143,15 @@ tourSchema.pre(/^find/, function (this: any, next) {
 //After the query is executed
 tourSchema.post(/^find/, function (this: any, docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
-  // console.log(docs);
+  next();
+});
+
+//AGGREGATION MIDDLEWARE
+tourSchema.pre('aggregate', function (next) {
+  //console.log(this.pipeline());
+  //unshift adds to the beginning if the array of pipeline stages
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  //console.log(this.pipeline());
   next();
 });
 
