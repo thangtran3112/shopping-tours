@@ -1,6 +1,6 @@
 import { ITour, Tour } from '../models/tourModel';
 import { ApiRequest } from '../app';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { ExcludedFields } from '../constants/params';
 
 export const getTour = async (req: Request, res: Response) => {
@@ -148,4 +148,15 @@ export const getAllTours = async (req: ApiRequest, res: Response) => {
       message: err,
     });
   }
+};
+
+export const aliasTopTours = async (
+  req: Request,
+  _: Response,
+  next: NextFunction,
+) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
 };
