@@ -4,6 +4,9 @@ import { join } from 'path';
 
 //Must load the config before importing app, so app will have process.env ready
 dotenv.config({ path: join(__dirname, '../config.env') });
+if (!!!process.env.DB_URL) {
+  dotenv.config({ path: join(__dirname, '/config.env') });
+}
 import app from './app';
 
 // 2) CONNECT TO DB

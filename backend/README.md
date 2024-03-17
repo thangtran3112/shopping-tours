@@ -1,3 +1,20 @@
+## Start dev server or build the project:
+
+- `npm start`
+- `npm run build` to bundling the code into 1 file for faster loading under dist/esbuild
+- `npm run build:tsc` to build your typescript Express codes into Javacript under /dist
+
+## Running API as AWS Lambda or Azura Function
+
+- [Install `serverless` framework](https://www.npmjs.com/package/@codegenie/serverless-express)
+- Checkout for more examples of serverless on all programming languages. [Link](https://github.com/serverless/examples)
+- `npm install @codegenie/serverless-express`
+
+## Set up libraries
+
+- Install `morgan`: `npm i morgan @types/morgan`
+- List of officially [supported middlewares by Express](https://github.com/senchalabs/connect#middleware)
+
 ## Typescript Project Setup
 
 - [Typescript Express](https://blog.logrocket.com/how-to-set-up-node-typescript-express/)
@@ -42,11 +59,6 @@ npm i -D nodemon ts-node
   }
 ```
 
-## Start dev server or build the project:
-
-- `npm start`
-- `npm run build` to build your typescript Express codes into Javacript under /dist
-
 ## Testing Express in Javascript mode:
 
 - Change `package.json` to use `src/index.js` instead of `index.js`
@@ -67,14 +79,3 @@ npm i -D nodemon ts-node
 ## [Eslint and Prettier setup](https://mobisoftinfotech.com/resources/blog/set-up-node-and-express-js-project-from-scratch-with-typescript-eslint-and-prettier/)
 
 - Optional: `npx eslint --init` or directly created .eslintrc.json
-
-## Set up libraries
-
-- Install `morgan`: `npm i morgan @types/morgan`
-- List of officially [supported middlewares by Express](https://github.com/senchalabs/connect#middleware)
-
-## Running API as AWS Lambda or Azura Function
-
-- [Install `serverless` framework](https://www.npmjs.com/package/@codegenie/serverless-express)
-- Checkout for more examples of serverless on all programming languages. [Link](https://github.com/serverless/examples)
-- `npm install @codegenie/serverless-express`
