@@ -28,4 +28,28 @@ app.use((req: ApiRequest, res: Response, next: NextFunction) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
+/** If a request comes here, it was not handled by any previous routers */
+app.all('*', (req: Request, res: Response, next: NextFunction) => {
+  // res.status(404).json({
+  //   status: 'fail',
+  //   message: `Can't find ${req.originalUrl} on this server`,
+  // });
+
+  const err = new Error(`Can't find ${req.originalUrl} on this server`) as any;
+  err.statusCode = 404;
+  err.status = 'fail';
+
+  //whatever you pass in next, it will be considered as an error, and skip other middlewares
+  next(err);
+});
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
+  });
+});
+
 export default app;

@@ -80,3 +80,9 @@ npm i -D nodemon ts-node
 ## [Eslint and Prettier setup](https://mobisoftinfotech.com/resources/blog/set-up-node-and-express-js-project-from-scratch-with-typescript-eslint-and-prettier/)
 
 - Optional: `npx eslint --init` or directly created .eslintrc.json
+
+## [How to debug your Express app in VSCode](https://brianjenney.medium.com/how-to-debug-your-node-express-app-using-vs-code-6efb40180ba4)
+
+- `Add Configuration` in `launch.json` as a NodeJs program
+- start your project in a terminal windows as `npm start`
+- Set up break points, and select the nodejs process to debug from VSCode `Run`

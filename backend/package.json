@@ -15,7 +15,8 @@
     "format": "prettier --write \"**/*.ts\"",
     "clean": "rm -rf dist",
     "delete": "npx ts-node src/dev-data/data/import-dev-data.ts --delete",
-    "import": "npx ts-node src/dev-data/data/import-dev-data.ts --import"
+    "import": "npx ts-node src/dev-data/data/import-dev-data.ts --import",
+    "debug": "npm run build:tsc && ndb dist/server.js"
   },
   "author": "Thang Tran",
   "license": "ISC",
@@ -36,7 +37,8 @@
     "prettier": "^3.2.5",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.2",
+    "ndb": "^1.1.5"
   },
   "dependencies": {
     "@codegenie/serverless-express": "^4.14.0",
