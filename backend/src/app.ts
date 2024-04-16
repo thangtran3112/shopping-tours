@@ -3,6 +3,8 @@ import morgan from 'morgan';
 import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
 import { join } from 'path';
+import AppError from './utils/appError';
+import { globalErrorHandler } from './controllers/errorController';
 
 export interface ApiRequest extends Request {
   requestTime?: string;
@@ -30,26 +32,14 @@ app.use('/api/v1/users', userRouter);
 
 /** If a request comes here, it was not handled by any previous routers */
 app.all('*', (req: Request, res: Response, next: NextFunction) => {
-  // res.status(404).json({
-  //   status: 'fail',
-  //   message: `Can't find ${req.originalUrl} on this server`,
-  // });
-
-  const err = new Error(`Can't find ${req.originalUrl} on this server`) as any;
-  err.statusCode = 404;
-  err.status = 'fail';
+  // const err = new Error(`Can't find ${req.originalUrl} on this server`) as any;
+  // err.statusCode = 404;
+  // err.status = 'fail';
 
   //whatever you pass in next, it will be considered as an error, and skip other middlewares
-  next(err);
+  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
-});
+app.use(globalErrorHandler);
 
 export default app;
