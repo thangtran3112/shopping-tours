@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import mongoose, { Query } from 'mongoose';
 import slugify from 'slugify';
 import validator from 'validator';
