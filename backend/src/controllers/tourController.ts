@@ -4,11 +4,16 @@ import { ApiRequest } from '../app';
 import { ITour, Tour } from '../models/tourModel';
 import APIFeatures from '../utils/apiFeatures';
 import { NextFunction, Request, Response } from 'express';
+import AppError from '../utils/appError';
 
 export const getTour = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const tour = (await Tour.findById(req.params.id)) as ITour;
     //const tour = await Tour.findOne({ _id: req.params.id }); //equivalent to above
+
+    if (!tour) {
+      return next(new AppError('No tour found with that ID', 404));
+    }
     res.status(200).json({
       status: 'success',
       data: {
@@ -25,6 +30,11 @@ export const updateTour = catchAsync(
       runValidators: true,
       //upsert: true,
     });
+
+    if (!tour) {
+      return next(new AppError('No tour found with that ID', 404));
+    }
+
     res.status(200).json({
       status: 'success',
       data: {
@@ -36,7 +46,12 @@ export const updateTour = catchAsync(
 
 export const deleteTour = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    await Tour.findByIdAndDelete(req.params.id);
+    const tour = await Tour.findByIdAndDelete(req.params.id);
+
+    if (!tour) {
+      return next(new AppError('No tour found with that ID', 404));
+    }
+
     res.status(204).json({
       status: 'success',
       data: null,
