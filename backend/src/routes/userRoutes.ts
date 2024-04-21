@@ -1,4 +1,4 @@
-import { login, signup } from '../controllers/authController';
+import { forgotPassword, login, signup } from '../controllers/authController';
 import {
   getAllUsers,
   createUser,
@@ -12,6 +12,7 @@ const router = express.Router();
 
 router.post('/signup', signup);
 router.post('/login', login);
+router.post('/forgotPassword', forgotPassword);
 
 router.route('/').get(getAllUsers).post(createUser);
 router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
