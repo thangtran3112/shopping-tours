@@ -1,8 +1,17 @@
-## Start dev server or build the project:
+# Start dev server or build the project
 
-- `npm start`
 - `npm run build` to bundling the code into 1 file for faster loading under dist/esbuild
 - `npm run build:tsc` to build your typescript Express codes into Javacript under /dist
+
+## Env
+
+PORT=3000
+DB_NAME=amazing
+DB_USERNAME=<admin username in MongoDB>
+DB_PASSWORD=<admin password in MongoDB>
+DB_URL=<mongodb+srv://awscluster1.yerzcf1.mongodb.net/amazing?retryWrites=true&w=majority&appName=AwsCluster1>
+DB_LOCAL=mongodb://localhost:27017/amazing
+JWT_SECRET=<any secret string, recommended 32 characters or more>
 
 ## Running API as AWS Lambda or Azura Function
 
@@ -60,7 +69,7 @@ npm i -D nodemon ts-node
   }
 ```
 
-## Testing Express in Javascript mode:
+## Testing Express in Javascript mode
 
 - Change `package.json` to use `src/index.js` instead of `index.js`
 
