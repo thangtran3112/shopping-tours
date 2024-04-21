@@ -1,8 +1,22 @@
-import { hash } from 'bcrypt';
-import mongoose, { CallbackWithoutResultAndOptionalError } from 'mongoose';
+import { compare, hash } from 'bcrypt';
+import mongoose, {
+  CallbackWithoutResultAndOptionalError,
+  Types,
+} from 'mongoose';
 import validator from 'validator';
 
-const userSchema = new mongoose.Schema({
+export interface IUser {
+  correctPassword(password: any, password1: string): unknown;
+  _id: Types.ObjectId;
+  name: string;
+  email: string;
+  photo?: string;
+  role: string;
+  password: string;
+  passwordConfirm: string;
+}
+
+const userSchema = new mongoose.Schema<IUser>({
   name: {
     type: String,
     required: [true, 'Please tell us your name!'],
@@ -23,6 +37,8 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Please provide a password'],
+    minlength: 8,
+    select: false,
   },
   passwordConfirm: {
     type: String,
@@ -37,7 +53,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-//pre-save Mongoose middleware
+//pre-save Mongoose middleware, this will be refered to mongoose userSchema collection
 userSchema.pre(
   'save',
   async function (this: any, next: CallbackWithoutResultAndOptionalError) {
@@ -50,6 +66,14 @@ userSchema.pre(
     next();
   },
 );
+
+//mongoose instance methods, cannot convert to arrow function, as we need to refer this to userSchema
+userSchema.methods.correctPassword = function (
+  candidatePassword: string,
+  userPassword: string,
+) {
+  return compare(candidatePassword, userPassword);
+};
 
 const User = mongoose.model('User', userSchema);
 export default User;

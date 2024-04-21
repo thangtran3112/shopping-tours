@@ -1,4 +1,4 @@
-import { signup } from '../controllers/authController';
+import { login, signup } from '../controllers/authController';
 import {
   getAllUsers,
   createUser,
@@ -11,6 +11,7 @@ import express from 'express';
 const router = express.Router();
 
 router.post('/signup', signup);
+router.post('/login', login);
 
 router.route('/').get(getAllUsers).post(createUser);
 router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
