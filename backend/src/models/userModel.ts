@@ -1,4 +1,5 @@
 import { compare, hash } from 'bcrypt';
+import { createHash, randomBytes } from 'crypto';
 import mongoose, {
   CallbackWithoutResultAndOptionalError,
   Types,
@@ -8,6 +9,7 @@ import validator from 'validator';
 export interface IUser {
   correctPassword(password: any, password1: string): unknown;
   changedPasswordAfter(JWTTimestamp: number): unknown;
+  createPasswordResetToken(): unknown;
   _id: Types.ObjectId;
   name: string;
   email: string;
@@ -16,6 +18,8 @@ export interface IUser {
   password: string;
   passwordConfirm: string;
   passwordChangedAt?: Date;
+  passwordResetToken?: string;
+  passwordResetExpires?: Date;
 }
 
 const userSchema = new mongoose.Schema<IUser>({
@@ -54,6 +58,8 @@ const userSchema = new mongoose.Schema<IUser>({
     },
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 //pre-save Mongoose middleware, this will be refered to mongoose userSchema collection
@@ -78,6 +84,7 @@ userSchema.methods.correctPassword = function (
   return compare(candidatePassword, userPassword);
 };
 
+//document instance method
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp: number) {
   if (this.passwordChangedAt) {
     const changedTimestamp = this.passwordChangedAt.getTime() / 1000;
@@ -87,6 +94,22 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp: number) {
 
   //False means password was not changed
   return false;
+};
+
+/**
+ * Reset token does not need high security as password encryption
+ * As it is short live and to be available for 10 minutes only
+ */
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = randomBytes(32).toString('hex');
+  this.passwordResetToken = createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  console.log({ resetToken }, this.passwordResetToken);
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes for reset token
+  return resetToken; //send back the unencrypted reset token to email
 };
 
 const User = mongoose.model('User', userSchema);
