@@ -12,6 +12,7 @@ DB_PASSWORD=<admin password in MongoDB>
 DB_URL=<mongodb+srv://awscluster1.yerzcf1.mongodb.net/amazing?retryWrites=true&w=majority&appName=AwsCluster1>
 DB_LOCAL=mongodb://localhost:27017/amazing
 JWT_SECRET=<any secret string, recommended 32 characters or more>
+JWT_EXPIRES_IN=1d
 
 ## Running API as AWS Lambda or Azura Function
 
