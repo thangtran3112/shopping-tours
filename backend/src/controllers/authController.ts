@@ -5,7 +5,7 @@ import { catchAsync } from '../utils/catchAsync';
 import jwt from 'jsonwebtoken';
 import AppError from '../utils/appError';
 import { Types } from 'mongoose';
-import { promisify } from 'util';
+import { AppRequest } from '../utils/types';
 
 export const signToken = (id: Types.ObjectId) => {
   return jwt.sign({ id }, process.env.JWT_SECRET!, {
@@ -14,13 +14,16 @@ export const signToken = (id: Types.ObjectId) => {
 };
 
 export const signup = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: AppRequest, res: Response, next: NextFunction) => {
+    //for security purpose, we will not pass the whole res.body to User.create
+    //but only the necessary fields. This would avoid hackers to add bogus fields to the database
     const newUser = await User.create({
       name: req.body.name,
       email: req.body.email,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
       passwordChangedAt: req.body.passwordChangedAt,
+      role: req.body.role,
     });
 
     const token = signToken(newUser._id);
@@ -36,7 +39,7 @@ export const signup = catchAsync(
 );
 
 export const login = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: AppRequest, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -60,7 +63,7 @@ export const login = catchAsync(
 );
 
 export const protect = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: AppRequest, res: Response, next: NextFunction) => {
     // 1) Getting token and check of it's there
     let token;
     if (
@@ -107,8 +110,20 @@ export const protect = catchAsync(
     }
 
     // GRANT ACCESS TO PROTECTED ROUTE
-    (req as any).user = freshUser;
+    //(req as any).user = freshUser;
+    req.user = freshUser;
 
     next(); // do not use "return next()" unless we want to stop propagation to other middlewares
   },
 );
+
+export const restrictTo = (...roles: string[]) => {
+  return (req: AppRequest, res: Response, next: NextFunction) => {
+    if (!roles.includes(req.user!.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action', 403),
+      );
+    }
+    next();
+  };
+};
