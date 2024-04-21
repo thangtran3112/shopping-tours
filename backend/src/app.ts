@@ -23,6 +23,7 @@ app.use(express.static(join(__dirname, '/public')));
 
 app.use((req: ApiRequest, res: Response, next: NextFunction) => {
   req.requestTime = new Date().toISOString();
+  console.log(req.headers);
   next();
 });
 

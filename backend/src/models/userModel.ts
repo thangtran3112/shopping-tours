@@ -7,6 +7,7 @@ import validator from 'validator';
 
 export interface IUser {
   correctPassword(password: any, password1: string): unknown;
+  changedPasswordAfter(JWTTimestamp: number): unknown;
   _id: Types.ObjectId;
   name: string;
   email: string;
@@ -14,6 +15,7 @@ export interface IUser {
   role: string;
   password: string;
   passwordConfirm: string;
+  passwordChangedAt?: Date;
 }
 
 const userSchema = new mongoose.Schema<IUser>({
@@ -51,6 +53,7 @@ const userSchema = new mongoose.Schema<IUser>({
       message: 'Passwords are not the same!',
     },
   },
+  passwordChangedAt: Date,
 });
 
 //pre-save Mongoose middleware, this will be refered to mongoose userSchema collection
@@ -73,6 +76,17 @@ userSchema.methods.correctPassword = function (
   userPassword: string,
 ) {
   return compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp: number) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = this.passwordChangedAt.getTime() / 1000;
+    //console.log(changedTimestamp, JWTTimestamp);
+    return JWTTimestamp < changedTimestamp;
+  }
+
+  //False means password was not changed
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);

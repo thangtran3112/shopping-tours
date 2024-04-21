@@ -5,6 +5,7 @@ import { catchAsync } from '../utils/catchAsync';
 import jwt from 'jsonwebtoken';
 import AppError from '../utils/appError';
 import { Types } from 'mongoose';
+import { promisify } from 'util';
 
 export const signToken = (id: Types.ObjectId) => {
   return jwt.sign({ id }, process.env.JWT_SECRET!, {
@@ -19,6 +20,7 @@ export const signup = catchAsync(
       email: req.body.email,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
+      passwordChangedAt: req.body.passwordChangedAt,
     });
 
     const token = signToken(newUser._id);
@@ -54,5 +56,59 @@ export const login = catchAsync(
       status: 'success',
       token,
     });
+  },
+);
+
+export const protect = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1) Getting token and check of it's there
+    let token;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
+      return next(
+        new AppError(
+          'You are not logged in! Please log in to get access.',
+          401,
+        ),
+      );
+    }
+
+    // 2) Verification token
+    const promise = new Promise((resolve, _) =>
+      resolve(jwt.verify(token, process.env.JWT_SECRET!)),
+    );
+    const decoded = (await promise) as jwt.JwtPayload;
+
+    // 3) Check if user still exists, in case token was correct, but user was deleted
+    const freshUser = await User.findById(decoded.id);
+    if (!freshUser) {
+      return next(
+        new AppError(
+          'The user belonging to this token does no longer exist.',
+          401,
+        ),
+      );
+    }
+
+    // 4) Check if user changed password after the token was issued
+    if (freshUser.changedPasswordAfter(decoded.iat!)) {
+      return next(
+        new AppError(
+          'User recently changed password! Please log in again.',
+          401,
+        ),
+      );
+    }
+
+    // GRANT ACCESS TO PROTECTED ROUTE
+    (req as any).user = freshUser;
+
+    next(); // do not use "return next()" unless we want to stop propagation to other middlewares
   },
 );

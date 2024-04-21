@@ -1,3 +1,4 @@
+import { protect } from '../controllers/authController';
 import {
   deleteTour,
   getAllTours,
@@ -19,7 +20,7 @@ router.route('/monthly-plan/:year').get(getMonthlyPlan);
 // router.param('id', checkID);
 
 // router.route('/').get(getAllTours).post(checkPostBody, createTour);
-router.route('/').get(getAllTours).post(createTour);
+router.route('/').get(protect, getAllTours).post(createTour);
 router.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
 export default router;
