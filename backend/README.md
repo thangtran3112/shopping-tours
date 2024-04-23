@@ -96,3 +96,8 @@ npm i -D nodemon ts-node
 - `Add Configuration` in `launch.json` as a NodeJs program
 - start your project in a terminal windows as `npm start`
 - Set up break points, and select the nodejs process to debug from VSCode `Run`
+
+## For development email testing, we are using [mailtrap.io](https://mailtrap.io/)
+
+- Emails will not be sent to actual email addresses, but will be traped by mailtrap.io
+- Sign in to mailtrap.io and go to `Email Testing` -> Inboxes, where we can find SMTP settings to populate our `config.env` file
