@@ -68,10 +68,25 @@ userSchema.pre(
   async function (this: any, next: CallbackWithoutResultAndOptionalError) {
     //Only run this function if password was actually modified
     if (!this.isModified('password')) return next();
+
     //Hash the password with cost of 12, async version of hashing
     this.password = await hash(this.password, 12);
+
     //Delete passwordConfirm field, as it is only required for input, not on saving
     this.passwordConfirm = undefined;
+    next();
+  },
+);
+
+userSchema.pre(
+  'save',
+  function (this: any, next: CallbackWithoutResultAndOptionalError) {
+    //if password is not modified, or this is a new document, skip to the next middleware
+    if (!this.isModified('password') || this.isNew) return next();
+
+    //sometime saving property to db take a while, and we want the responsed
+    //JWT token to have higher timestamp than passwordChangedAt
+    this.passwordChangedAt = Date.now() - 1000;
     next();
   },
 );
