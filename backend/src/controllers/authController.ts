@@ -15,34 +15,58 @@ export const signToken = (id: Types.ObjectId) => {
   });
 };
 
+export const createSendToken = (
+  user: IUser,
+  statusCode: number,
+  res: Response,
+) => {
+  const token = signToken(user._id);
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
+interface SignupBody {
+  name: string;
+  email: string;
+  password: string;
+  passwordConfirm: string;
+  role: string;
+  passwordChangedAt: Date; //injected by Mongoose middleware
+}
+
 export const signup = catchAsync(
   async (req: AppRequest, res: Response, next: NextFunction) => {
+    const { name, email, password, passwordConfirm, role, passwordChangedAt } =
+      req.body as SignupBody;
+
     //for security purpose, we will not pass the whole res.body to User.create
     //but only the necessary fields. This would avoid hackers to add bogus fields to the database
     const newUser = await User.create({
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
-      passwordConfirm: req.body.passwordConfirm,
-      passwordChangedAt: req.body.passwordChangedAt,
-      role: req.body.role,
+      name,
+      email,
+      password,
+      passwordConfirm,
+      passwordChangedAt,
+      role,
     });
 
-    const token = signToken(newUser._id);
-
-    res.status(201).json({
-      status: 'success',
-      token,
-      data: {
-        user: newUser,
-      },
-    });
+    createSendToken(newUser, 201, res);
   },
 );
 
+interface LoginBody {
+  email: string;
+  password: string;
+}
+
 export const login = catchAsync(
   async (req: AppRequest, res: Response, next: NextFunction) => {
-    const { email, password } = req.body;
+    const { email, password } = req.body as LoginBody;
 
     if (!email || !password) {
       return next(new AppError('Please provide email and password', 400));
@@ -56,11 +80,7 @@ export const login = catchAsync(
       return next(new AppError('Incorrect email or password', 401));
     }
 
-    const token = signToken(user._id);
-    res.status(200).json({
-      status: 'success',
-      token,
-    });
+    createSendToken(user, 200, res);
   },
 );
 
@@ -130,10 +150,18 @@ export const restrictTo = (...roles: string[]) => {
   };
 };
 
+interface ForgotPasswordBody {
+  email: string;
+}
+
 export const forgotPassword = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: AppRequest, res: Response, next: NextFunction) => {
+    const { email } = req.body as ForgotPasswordBody;
+
     // 1) Get user based on POSTed email
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({
+      email,
+    });
     if (!user) {
       return next(new AppError('There is no user with email address.', 404));
     }
@@ -176,8 +204,13 @@ export const forgotPassword = catchAsync(
   },
 );
 
+interface ResetPasswordBody {
+  password: string;
+  passwordConfirm: string;
+}
+
 export const resetPassword = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: AppRequest, res: Response, next: NextFunction) => {
     // 1) Get user based on the token
     const hashedToken = createHash('sha256')
       .update(req.params.token)
@@ -192,19 +225,51 @@ export const resetPassword = catchAsync(
     if (!user) {
       return next(new AppError('Token is invalid or has expired', 400));
     }
-    user.password = req.body.password;
-    user.passwordConfirm = req.body.passwordConfirm;
+    const { password, passwordConfirm } = req.body as ResetPasswordBody;
+    user.password = password;
+    user.passwordConfirm = passwordConfirm;
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save();
 
-    // 3) Update changedPasswordAt property for the user
+    // 3) Update changedPasswordAt property for the user, directly through model
+    // done with moongoose pre-save middleware
 
     // 4) Log the user in, send JWT
-    const token = signToken(user._id);
-    res.status(200).json({
-      status: 'success',
-      token,
-    });
+    createSendToken(user, 200, res);
+  },
+);
+
+interface UpdatePasswordBody {
+  passwordCurrent: string;
+  password: string;
+  passwordConfirm: string;
+}
+
+export const updatePassword = catchAsync(
+  async (req: AppRequest, res: Response, next: NextFunction) => {
+    const authedUser = req.user!;
+    const { passwordCurrent, password, passwordConfirm } =
+      req.body as UpdatePasswordBody;
+
+    // 1) Get user from collection
+    const user = await User.findById(authedUser._id).select('+password');
+    if (!user) {
+      return next(new AppError('User not found in database', 404));
+    }
+
+    // 2) Check if POSTed current password is correct
+    if (!(await user.correctPassword(passwordCurrent, user.password))) {
+      return next(new AppError('Your current password is wrong.', 401));
+    }
+
+    // 3) If so, update password
+    user.password = password;
+    user.passwordConfirm = passwordConfirm;
+    await user.save();
+    // User.findByIdAndUpdate will NOT work here because of pre-save middlewares
+
+    // 4) Log user in, send JWT
+    createSendToken(user, 200, res);
   },
 );

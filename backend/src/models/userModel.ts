@@ -51,6 +51,7 @@ const userSchema = new mongoose.Schema<IUser>({
     required: [true, 'Please confirm your password'],
     validate: {
       // This only works on Mongoose CREATE or SAVE!!!
+      //Mongoose does not keep object in memory, this will not work on UPDATE
       validator: function (this: any, el: string) {
         return el === this.password;
       },
@@ -63,6 +64,7 @@ const userSchema = new mongoose.Schema<IUser>({
 });
 
 //pre-save Mongoose middleware, this will be refered to mongoose userSchema collection
+//Mongoose does not keep object in memory, so this pre-save will not work on UPDATE
 userSchema.pre(
   'save',
   async function (this: any, next: CallbackWithoutResultAndOptionalError) {
@@ -78,6 +80,7 @@ userSchema.pre(
   },
 );
 
+//Mongoose does not keep object in memory, so this pre-save will not work on UPDATE
 userSchema.pre(
   'save',
   function (this: any, next: CallbackWithoutResultAndOptionalError) {
