@@ -20,6 +20,7 @@ export interface IUser {
   passwordChangedAt?: Date;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
+  active: boolean;
 }
 
 const userSchema = new mongoose.Schema<IUser>({
@@ -61,6 +62,11 @@ const userSchema = new mongoose.Schema<IUser>({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 //pre-save Mongoose middleware, this will be refered to mongoose userSchema collection
@@ -93,6 +99,13 @@ userSchema.pre(
     next();
   },
 );
+
+//query middleware for any query that starts with find regular expresion
+userSchema.pre(/^find/, function (this: any, next) {
+  //this would add this find query to be run before the actual query
+  this.find({ active: { $ne: false } });
+  next();
+});
 
 //mongoose instance methods, cannot convert to arrow function, as we need to refer this to userSchema
 userSchema.methods.correctPassword = function (
