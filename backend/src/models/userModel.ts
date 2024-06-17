@@ -6,7 +6,7 @@ import mongoose, {
 } from 'mongoose';
 import validator from 'validator';
 
-export interface IUser {
+export interface ResponseUser {
   correctPassword(password: any, password1: string): unknown;
   changedPasswordAfter(JWTTimestamp: number): unknown;
   createPasswordResetToken(): unknown;
@@ -15,12 +15,16 @@ export interface IUser {
   email: string;
   photo?: string;
   role: string;
-  password: string;
+  password?: string;
   passwordConfirm: string;
   passwordChangedAt?: Date;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
   active: boolean;
+}
+
+export interface IUser extends ResponseUser {
+  password: string;
 }
 
 const userSchema = new mongoose.Schema<IUser>({
