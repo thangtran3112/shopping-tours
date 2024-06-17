@@ -1,7 +1,9 @@
 # Start dev server or build the project
 
-- `npm run build` to bundling the code into 1 file for faster loading under dist/esbuild
+- `npm run bundle` to bundling the code into 1 file for faster loading under dist/esbuild
 - `npm run build:tsc` to build your typescript Express codes into Javacript under /dist
+- Note: Currently esbuild ignore some dependencies, such as `aws-sdk`, `nock`, `mock-aws-s3`, that we need to add them manually
+- IMPORTANT: If we are not using `bcrypt`, we do not need to add any external dependencies to the list in `esbuild` command. See /esbuild/package.json where we install `@types/bcrypt` and `bcrypt` dependencies manually after build
 
 ## Env
 
