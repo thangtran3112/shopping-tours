@@ -1,5 +1,8 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+
 import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
 import { join } from 'path';
@@ -12,13 +15,29 @@ export interface ApiRequest extends Request {
 
 const app: Express = express();
 
-// 1) MIDDLEWARES
-//chaining your requests through middleware, before sending the response
+// 1) GLOBAL MIDDLEWARES
 
+// Set Security HTTP headers, should always be the first middleware
+app.use(helmet());
+
+// Development logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
-app.use(express.json());
+
+//100 requests per hour for one IP address
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000, // 1 hour
+  message: 'Too many requests from this IP, please try again in an hour!',
+});
+//limiter only applies to this api route
+app.use('/api', limiter);
+
+// Body parser, reading data from body into req.body
+app.use(express.json({ limit: '10kb' })); //limit the request body to 10kb
+
+// Serving static files
 app.use(express.static(join(__dirname, '/public')));
 
 app.use((req: ApiRequest, res: Response, next: NextFunction) => {
