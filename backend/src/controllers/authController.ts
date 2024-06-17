@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { NextFunction, Request, Response } from 'express';
-import User, { IUser } from '../models/userModel';
+import { CookieOptions, NextFunction, Request, Response } from 'express';
+import User, { IUser, ResponseUser } from '../models/userModel';
 import { catchAsync } from '../utils/catchAsync';
 import jwt from 'jsonwebtoken';
 import AppError from '../utils/appError';
@@ -16,11 +16,26 @@ export const signToken = (id: Types.ObjectId) => {
 };
 
 export const createSendToken = (
-  user: IUser,
+  user: ResponseUser,
   statusCode: number,
   res: Response,
 ) => {
   const token = signToken(user._id);
+
+  const cookieOptions: CookieOptions = {
+    expires: new Date(
+      Date.now() +
+        Number(process.env.JWT_COOKIE_EXPIRES_IN!) * 24 * 60 * 60 * 1000,
+    ),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+  };
+
+  res.cookie('jwt', token, cookieOptions);
+
+  // Remove password from output
+  user.password = undefined;
+
   res.status(statusCode).json({
     status: 'success',
     token,
