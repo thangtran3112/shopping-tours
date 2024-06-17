@@ -2,6 +2,10 @@ import express, { Express, NextFunction, Request, Response } from 'express';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { xss } = require('express-xss-sanitizer');
 
 import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
@@ -36,6 +40,12 @@ app.use('/api', limiter);
 
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' })); //limit the request body to 10kb
+
+// Data sanitization against NoSQL query injection
+app.use(mongoSanitize());
+
+// Data sanitization against XSS
+app.use(xss());
 
 // Serving static files
 app.use(express.static(join(__dirname, '/public')));
