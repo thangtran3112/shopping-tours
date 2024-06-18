@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
+import hpp from 'hpp';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { xss } = require('express-xss-sanitizer');
@@ -46,6 +47,22 @@ app.use(mongoSanitize());
 
 // Data sanitization against XSS
 app.use(xss());
+
+//Prevent parameter pollution, such as duplicate query parameters
+//Eg: ?sort=price&sort=name
+//we still want to allow some exceptions, like ?duration=5&duration=10
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsAverage',
+      'ratingsQuantity',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  }),
+);
 
 // Serving static files
 app.use(express.static(join(__dirname, '/public')));
